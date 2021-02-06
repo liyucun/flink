@@ -24,6 +24,8 @@ import org.apache.flink.client.deployment.application.DetachedApplicationRunner;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.dispatcher.DispatcherGateway;
 import org.apache.flink.runtime.rest.handler.RestHandlerSpecification;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHandler;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarDeleteHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarDeleteHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarListHandler;
@@ -40,6 +42,7 @@ import org.apache.flink.runtime.webmonitor.retriever.GatewayRetriever;
 import org.apache.flink.shaded.netty4.io.netty.channel.ChannelInboundHandler;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -81,6 +84,18 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         JarListHeaders.getInstance(),
                         localAddressFuture,
                         jarDir.toFile(),
+                        configuration,
+                        executor);
+
+        Path dependencyJarDir = Paths.get("/lib");
+        final DependencyJarListHandler dependencyJarListHandler =
+                new DependencyJarListHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        DependencyJarListHeaders.getInstance(),
+                        localAddressFuture,
+                        dependencyJarDir.toFile(),
                         configuration,
                         executor);
 
@@ -130,6 +145,8 @@ public class WebSubmissionExtension implements WebMonitorExtension {
         webSubmissionHandlers.add(Tuple2.of(JarDeleteHeaders.getInstance(), jarDeleteHandler));
         webSubmissionHandlers.add(Tuple2.of(JarPlanGetHeaders.getInstance(), jarPlanHandler));
         webSubmissionHandlers.add(Tuple2.of(JarPlanPostHeaders.getInstance(), postJarPlanHandler));
+
+        webSubmissionHandlers.add(Tuple2.of(DependencyJarListHeaders.getInstance(), dependencyJarListHandler));
     }
 
     @Override
