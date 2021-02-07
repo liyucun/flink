@@ -176,6 +176,10 @@ public class DependencyJarListHandler
     }
 
     private File[] getJarFiles() {
+        if (jarDir == null) {
+            return EMPTY_FILES_ARRAY;
+        }
+
         final File[] list = jarDir.listFiles((dir, name) -> name.endsWith(".jar"));
         if (list == null) {
             log.warn(

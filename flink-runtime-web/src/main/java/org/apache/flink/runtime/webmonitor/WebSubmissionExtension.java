@@ -23,6 +23,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.client.deployment.application.DetachedApplicationRunner;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.dispatcher.DispatcherGateway;
+import org.apache.flink.runtime.entrypoint.ClusterEntrypointUtils;
 import org.apache.flink.runtime.rest.handler.RestHandlerSpecification;
 import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHandler;
 import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHeaders;
@@ -42,7 +43,6 @@ import org.apache.flink.runtime.webmonitor.retriever.GatewayRetriever;
 import org.apache.flink.shaded.netty4.io.netty.channel.ChannelInboundHandler;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -87,7 +87,6 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         configuration,
                         executor);
 
-        Path dependencyJarDir = Paths.get("/home/ec2-user/flink/build-target/lib");
         final DependencyJarListHandler dependencyJarListHandler =
                 new DependencyJarListHandler(
                         leaderRetriever,
@@ -95,7 +94,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         responseHeaders,
                         DependencyJarListHeaders.getInstance(),
                         localAddressFuture,
-                        dependencyJarDir.toFile(),
+                        ClusterEntrypointUtils.tryFindFlinkLibDirectory(),
                         configuration,
                         executor);
 

@@ -87,6 +87,16 @@ public final class ClusterEntrypointUtils {
         return Optional.of(usrLibDirectory);
     }
 
+    public static File tryFindFlinkLibDirectory() {
+        final String libDirectory = System.getenv().get(ConfigConstants.ENV_FLINK_LIB_DIR);
+
+        if (libDirectory == null) {
+            return null;
+        } else {
+            return new File(libDirectory);
+        }
+    }
+
     @Nullable
     private static File deriveFlinkHomeDirectoryFromLibDirectory() {
         final String libDirectory = System.getenv().get(ConfigConstants.ENV_FLINK_LIB_DIR);
