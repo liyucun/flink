@@ -87,7 +87,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         configuration,
                         executor);
 
-        Path dependencyJarDir = Paths.get("/lib");
+        Path dependencyJarDir = Paths.get("/home/ec2-user/flink/build-target/lib");
         final DependencyJarListHandler dependencyJarListHandler =
                 new DependencyJarListHandler(
                         leaderRetriever,
