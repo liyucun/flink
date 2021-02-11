@@ -47,6 +47,14 @@ export class SubmitComponent implements OnInit, OnDestroy {
   planVisible = false;
 
   /**
+   * Upload Dependency jar
+   * @param file
+   */
+  uploadDepencyJar(file: File) {
+    console.log(`uploadDepencyJar clicked - ${file.name}`)
+  }  
+
+  /**
    * Upload jar
    * @param file
    */
