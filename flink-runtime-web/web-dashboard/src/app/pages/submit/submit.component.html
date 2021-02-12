@@ -16,8 +16,60 @@
   ~ limitations under the License.
   -->
 
-  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Dependency Jars'" [nzLoading]="isLoading" [nzExtra]="extraTemplate">
+  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Dependency Jars'" [nzLoading]="isLoading" [nzExtra]="denpendencyJarUploadTemplate">
+    <ng-container *ngIf="!isYarn">
+      <nz-table
+        [nzSize]="'small'"
+        [nzData]="listOfDependencyJar"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        class="no-border">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Upload Time</th>
+            <th>Entry Class</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let jar of listOfDependencyJar; trackBy:trackJarBy;">
+            <tr (click)="expandJar(jar)" class="clickable">
+              <td>{{jar.name}}</td>
+              <td>{{jar.uploaded | date:'yyyy-MM-dd, HH:mm:ss'}}</td>
+              <td>
+                <div *ngFor="let entries of jar.entry">
+                  {{entries.name}}
+                </div>
+                <div *ngIf="jar.entry.length===0">
+                  -
+                </div>
+              </td>
+              <td class="delete-jar">
+                <a nz-popconfirm (click)="$event.stopPropagation();" (nzOnConfirm)="deleteDependencyJar(jar)" nzTitle="Are you sure delete this jar?">Delete</a>
+              </td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </ng-container>
+    <ng-container *ngIf="!noAccess && isYarn">
+      <span *ngIf="!address">Yarn's AM proxy doesn't allow file uploads. Please wait while we fetch an alternate url for you to use</span>
+      <span *ngIf="address">Yarn's AM proxy doesn't allow file uploads. You can visit&nbsp;<a [attr.href]="address+'/#/submit'">here</a>&nbsp;to access this functionality.</span>
+    </ng-container>
   </nz-card>
+  <ng-template #denpendencyJarUploadTemplate>
+    <div class="extra" *ngIf="!noAccess && !isYarn">
+      <ng-container *ngIf="!isUploading">
+        <input flinkFileRead type="file" class="input-file" id="upload-file" (fileRead)="uploadDepencyJar($event)">
+        <label for="upload-file" class="upload ant-btn-primary ant-btn ant-btn-sm">
+          <span><i nz-icon type="plus"></i>Add New</span>
+        </label>
+      </ng-container>
+      <nz-progress *ngIf="isUploading" [nzPercent]="progress" nzSize="small" [nzShowInfo]="false"></nz-progress>
+    </div>
+  </ng-template>
+
   <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Jars'" [nzLoading]="isLoading" [nzExtra]="extraTemplate">
     <ng-container *ngIf="!isYarn">
       <nz-table

@@ -43,6 +43,21 @@ export class JarService {
   }
 
   /**
+   * Get uploaded dependency jar list
+   */
+  loadDependencyJarList() {
+    return this.httpClient.get<JarListInterface>(`${BASE_URL}/dependency-jars`).pipe(
+      catchError(() => {
+        return of({
+          address: '',
+          error: true,
+          files: []
+        });
+      })
+    );
+  }
+
+  /**
    * Upload jar
    * @param fd
    */
@@ -56,11 +71,32 @@ export class JarService {
   }
 
   /**
+   * Upload dependency jar
+   * @param fd
+   */
+  uploadDependencyJar(fd: File) {
+    const formData = new FormData();
+    formData.append('jarfile', fd, fd.name);
+    const req = new HttpRequest('POST', `${BASE_URL}/dependency-jars/upload`, formData, {
+      reportProgress: true
+    });
+    return this.httpClient.request(req);
+  }
+
+  /**
    * Delete jar
    * @param jarId
    */
   deleteJar(jarId: string) {
     return this.httpClient.delete(`${BASE_URL}/jars/${jarId}`);
+  }
+
+  /**
+   * Delete dependency jar
+   * @param jarId
+   */
+  deleteDependencyJar(jarId: string) {
+    return this.httpClient.delete(`${BASE_URL}/dependency-jars/${jarId}`);
   }
 
   /**
