@@ -70,6 +70,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
             throws Exception {
 
         webSubmissionHandlers = new ArrayList<>();
+        Path dependencyJarDir = ClusterEntrypointUtils.tryFindFlinkLibDirectory().toPath();
 
         final JarUploadHandler jarUploadHandler =
                 new JarUploadHandler(
@@ -86,7 +87,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         timeout,
                         responseHeaders,
                         DependencyJarUploadHeaders.getInstance(),
-                        jarDir,
+                        dependencyJarDir,
                         executor);
 
         final JarListHandler jarListHandler =
@@ -107,7 +108,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         responseHeaders,
                         DependencyJarListHeaders.getInstance(),
                         localAddressFuture,
-                        ClusterEntrypointUtils.tryFindFlinkLibDirectory(),
+                        dependencyJarDir.toFile(),
                         configuration,
                         executor);
 
@@ -137,7 +138,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         timeout,
                         responseHeaders,
                         DependencyJarDeleteHeaders.getInstance(),
-                        jarDir,
+                        dependencyJarDir,
                         executor);
 
         final JarPlanHandler jarPlanHandler =
