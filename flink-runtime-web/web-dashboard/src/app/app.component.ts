@@ -53,5 +53,9 @@ export class AppComponent {
     this.monacoEditorService.layout();
   }
 
+  gotoSQLEditor() {
+    window.location.href = `http://${window.location.hostname}:8888`;
+  }
+
   constructor(public statusService: StatusService, private monacoEditorService: MonacoEditorService) {}
 }
