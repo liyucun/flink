@@ -1794,6 +1794,8 @@ public final class ConfigConstants {
     /** The environment variable name which contains the location of the plugins folder. */
     public static final String ENV_FLINK_PLUGINS_DIR = "FLINK_PLUGINS_DIR";
 
+    public static final String ENV_FLINK_SCHEDULERS_DIR = "FLINK_SCHEDULERS_DIR";
+
     /**
      * The default Flink plugins directory if none has been specified via {@link
      * #ENV_FLINK_PLUGINS_DIR}.

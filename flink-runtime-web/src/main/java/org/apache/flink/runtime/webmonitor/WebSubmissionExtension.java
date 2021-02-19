@@ -42,6 +42,10 @@ import org.apache.flink.runtime.webmonitor.handlers.JarRunHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarRunHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarUploadHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarUploadHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerListHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerListHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerUploadHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerUploadHeaders;
 import org.apache.flink.runtime.webmonitor.retriever.GatewayRetriever;
 
 import org.apache.flink.shaded.netty4.io.netty.channel.ChannelInboundHandler;
@@ -71,6 +75,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
 
         webSubmissionHandlers = new ArrayList<>();
         Path dependencyJarDir = ClusterEntrypointUtils.tryFindFlinkLibDirectory().toPath();
+        Path schedulersDir = ClusterEntrypointUtils.tryFindFlinkSchedulersDirectory().toPath();
 
         final JarUploadHandler jarUploadHandler =
                 new JarUploadHandler(
@@ -88,6 +93,15 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         responseHeaders,
                         DependencyJarUploadHeaders.getInstance(),
                         dependencyJarDir,
+                        executor);
+
+        final SchedulerUploadHandler schedulerUploadHandler =
+                new SchedulerUploadHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SchedulerUploadHeaders.getInstance(),
+                        schedulersDir,
                         executor);
 
         final JarListHandler jarListHandler =
@@ -109,6 +123,17 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         DependencyJarListHeaders.getInstance(),
                         localAddressFuture,
                         dependencyJarDir.toFile(),
+                        configuration,
+                        executor);
+
+        final SchedulerListHandler schedulerListHandler =
+                new SchedulerListHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SchedulerListHeaders.getInstance(),
+                        localAddressFuture,
+                        schedulersDir.toFile(),
                         configuration,
                         executor);
 
@@ -171,6 +196,9 @@ public class WebSubmissionExtension implements WebMonitorExtension {
         webSubmissionHandlers.add(Tuple2.of(DependencyJarUploadHeaders.getInstance(), dependencyJarUploadHandler));
         webSubmissionHandlers.add(Tuple2.of(DependencyJarListHeaders.getInstance(), dependencyJarListHandler));
         webSubmissionHandlers.add(Tuple2.of(DependencyJarDeleteHeaders.getInstance(), dependencyJarDeleteHandler));
+
+        webSubmissionHandlers.add(Tuple2.of(SchedulerUploadHeaders.getInstance(), schedulerUploadHandler));
+        webSubmissionHandlers.add(Tuple2.of(SchedulerListHeaders.getInstance(), schedulerListHandler));
     }
 
     @Override

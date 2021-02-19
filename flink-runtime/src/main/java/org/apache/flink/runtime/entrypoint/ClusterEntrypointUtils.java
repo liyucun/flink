@@ -97,6 +97,16 @@ public final class ClusterEntrypointUtils {
         }
     }
 
+    public static File tryFindFlinkSchedulersDirectory() {
+        final String libDirectory = System.getenv().get(ConfigConstants.ENV_FLINK_SCHEDULERS_DIR);
+
+        if (libDirectory == null) {
+            return null;
+        } else {
+            return new File(libDirectory);
+        }
+    }
+
     @Nullable
     private static File deriveFlinkHomeDirectoryFromLibDirectory() {
         final String libDirectory = System.getenv().get(ConfigConstants.ENV_FLINK_LIB_DIR);
