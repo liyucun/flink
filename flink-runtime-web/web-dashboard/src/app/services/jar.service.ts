@@ -57,6 +57,18 @@ export class JarService {
     );
   }
 
+  loadSchedulerList() {
+    return this.httpClient.get<JarListInterface>(`${BASE_URL}/schedulers`).pipe(
+      catchError(() => {
+        return of({
+          address: '',
+          error: true,
+          files: []
+        });
+      })
+    );
+  }
+
   /**
    * Upload jar
    * @param fd
@@ -78,6 +90,15 @@ export class JarService {
     const formData = new FormData();
     formData.append('jarfile', fd, fd.name);
     const req = new HttpRequest('POST', `${BASE_URL}/dependency-jars/upload`, formData, {
+      reportProgress: true
+    });
+    return this.httpClient.request(req);
+  }
+
+  uploadScheduler(fd: File) {
+    const formData = new FormData();
+    formData.append('pyfile', fd, fd.name);
+    const req = new HttpRequest('POST', `${BASE_URL}/schedulers/upload`, formData, {
       reportProgress: true
     });
     return this.httpClient.request(req);
