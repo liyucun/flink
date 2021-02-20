@@ -70,6 +70,51 @@
     </div>
   </ng-template>
 
+  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded SQL Jars'" [nzLoading]="isLoading" [nzExtra]="sqlUploadTemplate">
+    <ng-container *ngIf="!isYarn">
+      <nz-table
+        [nzSize]="'small'"
+        [nzData]="listOfSQLJar"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        class="no-border">
+        <thead>
+          <tr>
+            <th>Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let jar of listOfSQLJar; trackBy:trackJarBy;">
+            <tr>
+              <td>{{jar}}</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </ng-container>
+    <ng-container *ngIf="!noAccess && isYarn">
+      <span *ngIf="!address">Yarn's AM proxy doesn't allow file uploads. Please wait while we fetch an alternate url for you to use</span>
+      <span *ngIf="address">Yarn's AM proxy doesn't allow file uploads. You can visit&nbsp;<a [attr.href]="address+'/#/submit'">here</a>&nbsp;to access this functionality.</span>
+    </ng-container>
+  </nz-card>
+  <ng-template #sqlUploadTemplate>
+    <div class="extra" *ngIf="!noAccess && !isYarn">
+      <ng-container *ngIf="!isUploading">
+        <label (click)="showSQLModal()" class="upload ant-btn-primary ant-btn ant-btn-sm">
+          <span><i nz-icon type="plus"></i>Add New</span>
+        </label>
+      </ng-container>
+    </div>
+  </ng-template>
+  <nz-modal [(nzVisible)]="isSQLModalVisible" nzTitle="Write Your SQL Statements" [nzFooter]="modalFooter" (nzOnCancel)="handleSQLModalCancel()">
+    <input class="sql-jar-input" nz-input placeholder="sql jar name" #sqlJarNameInput (keyup)="updateSqlJarName(sqlJarNameInput.value)"/>
+    <textarea nz-input placeholder="Write your sql statements here" [nzAutosize]="{ minRows: 5, maxRows: 10 }" #sqlStatementsInput (keyup)="updateSqlStatements(sqlStatementsInput.value)"></textarea>
+    <ng-template #modalFooter>
+      <button nz-button nzType="default" (click)="handleSQLModalCancel()">Cancel</button>
+      <button nz-button nzType="primary" (click)="handleSQLModalUpload()" [nzLoading]="isUploading">Upload</button>
+    </ng-template>
+  </nz-modal>
+
   <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Jars'" [nzLoading]="isLoading" [nzExtra]="extraTemplate">
     <ng-container *ngIf="!isYarn">
       <nz-table

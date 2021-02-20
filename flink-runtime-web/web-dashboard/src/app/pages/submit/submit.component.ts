@@ -47,6 +47,36 @@ export class SubmitComponent implements OnInit, OnDestroy {
   progress = 0;
   validateForm: FormGroup;
   planVisible = false;
+  isSQLModalVisible = false;
+  sqlStatements = '';
+  sqlJarName = '';
+  listOfSQLJar = ['demo-sql.jar'];
+
+  showSQLModal(): void {
+    this.isSQLModalVisible = true;
+  }
+
+  handleSQLModalUpload(): void {
+    this.listOfSQLJar.push(this.sqlJarName);
+
+    this.sqlJarName = '';
+    this.sqlStatements = '';
+    this.isSQLModalVisible = false;
+  }
+
+  handleSQLModalCancel(): void {
+    this.sqlJarName = '';
+    this.sqlStatements = '';
+    this.isSQLModalVisible = false;
+  }
+
+  updateSqlStatements(value: string) {
+    this.sqlStatements = value;
+  }
+
+  updateSqlJarName(value: string) {
+    this.sqlJarName = value;
+  }
 
   /**
    * Upload Dependency jar
