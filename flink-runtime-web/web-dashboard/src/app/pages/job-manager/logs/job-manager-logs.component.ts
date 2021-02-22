@@ -28,12 +28,17 @@ import { MonacoEditorComponent } from 'share/common/monaco-editor/monaco-editor.
 })
 export class JobManagerLogsComponent implements OnInit {
   logs = '';
+  searchKeyword = '';
   @ViewChild(MonacoEditorComponent) monacoEditorComponent: MonacoEditorComponent;
 
   reload() {
     this.jobManagerService.loadLogs().subscribe(data => {
       this.monacoEditorComponent.layout();
       this.logs = data;
+      if (this.searchKeyword) {
+        const processedLogs = this.logs.split('\n').filter(line => line.includes(this.searchKeyword));
+        this.logs = processedLogs.join('\n');
+      }
       this.cdr.markForCheck();
     });
   }
@@ -41,6 +46,14 @@ export class JobManagerLogsComponent implements OnInit {
   constructor(private jobManagerService: JobManagerService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
+    this.reload();
+  }
+
+  onKey(value: string) {
+    this.searchKeyword = value;
+  }
+
+  handleSearch() {
     this.reload();
   }
 }
