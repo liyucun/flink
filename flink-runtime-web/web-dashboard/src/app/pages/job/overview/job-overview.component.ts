@@ -63,20 +63,22 @@ export class JobOverviewComponent implements OnInit, OnDestroy {
   }
 
   mergeWithBackPressure(nodes: NodesItemCorrectInterface[]): Observable<NodesItemCorrectInterface[]> {
-      return forkJoin(
-        nodes.map(node => {
-          return this.metricService.getAggregatedMetrics(this.jobId, node.id, ["backPressuredTimeMsPerSecond", "busyTimeMsPerSecond"]).pipe(
+    return forkJoin(
+      nodes.map(node => {
+        return this.metricService
+          .getAggregatedMetrics(this.jobId, node.id, ['backPressuredTimeMsPerSecond', 'busyTimeMsPerSecond'])
+          .pipe(
             map(result => {
               return {
                 ...node,
                 backPressuredPercentage: Math.min(Math.round(result.backPressuredTimeMsPerSecond / 10), 100),
-                busyPercentage: Math.min(Math.round(result.busyTimeMsPerSecond / 10), 100),
+                busyPercentage: Math.min(Math.round(result.busyTimeMsPerSecond / 10), 100)
               };
             })
           );
-        })
-      ).pipe(catchError(() => of(nodes)));
-    }
+      })
+    ).pipe(catchError(() => of(nodes)));
+  }
 
   mergeWithWatermarks(nodes: NodesItemCorrectInterface[]): Observable<NodesItemCorrectInterface[]> {
     return forkJoin(
@@ -116,6 +118,42 @@ export class JobOverviewComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(data => {
+        // const magic_nodes = [];
+        // for (let node of data.plan.nodes) {
+        //   magic_nodes.push(node);
+        //   if (node.parallelism == 2) {
+        //     magic_nodes.push({...node, id: `${node.id}#1`});
+        //   }
+        // }
+        // const magic_links = []
+        // for (let link of data.plan.links) {
+        //   magic_links.push(link);
+        // }
+        // magic_links.push({
+        //   exchange: "pipelined_bounded",
+        //   id: "ea632d67b7d595e5b851708ae9ad79d6#1-6d2677a0ecc3fd8df0b72ec675edf8f4",
+        //   num: 0,
+        //   ship_strategy: "REBALANCE",
+        //   source: "ea632d67b7d595e5b851708ae9ad79d6#1",
+        //   target: "6d2677a0ecc3fd8df0b72ec675edf8f4",
+        // })
+        // magic_links.push({
+        //   exchange: "pipelined_bounded",
+        //   id: "0a448493b4782967b150582570326227#1-ea632d67b7d595e5b851708ae9ad79d6#1",
+        //   num: 0,
+        //   ship_strategy: "HASH",
+        //   source: "0a448493b4782967b150582570326227#1",
+        //   target: "ea632d67b7d595e5b851708ae9ad79d6#1"
+        // })
+        // magic_links.push({
+        //   exchange: "pipelined_bounded",
+        //   id: "bc764cd8ddf7a0cff126f51c16239658-0a448493b4782967b150582570326227#1",
+        //   num: 0,
+        //   ship_strategy: "REBALANCE",
+        //   source: "bc764cd8ddf7a0cff126f51c16239658",
+        //   target: "0a448493b4782967b150582570326227#1"
+        // })
+
         if (this.jobId !== data.plan.jid) {
           this.nodes = data.plan.nodes;
           this.links = data.plan.links;
