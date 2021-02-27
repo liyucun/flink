@@ -116,6 +116,15 @@ export class JarService {
     return this.httpClient.request(req);
   }
 
+  uploadSqlScript(fd: File) {
+    const formData = new FormData();
+    formData.append('pyfile', fd, fd.name);
+    const req = new HttpRequest('POST', `${BASE_URL}/sql-scripts/upload`, formData, {
+      reportProgress: true
+    });
+    return this.httpClient.request(req);
+  }
+
   /**
    * Delete jar
    * @param jarId
@@ -130,6 +139,10 @@ export class JarService {
    */
   deleteDependencyJar(jarId: string) {
     return this.httpClient.delete(`${BASE_URL}/dependency-jars/${jarId}`);
+  }
+
+  deleteSqlScript(jarId: string) {
+    return this.httpClient.delete(`${BASE_URL}/sql-scripts/${jarId}`);
   }
 
   /**

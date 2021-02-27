@@ -106,7 +106,23 @@ export class SubmitComponent implements OnInit, OnDestroy {
     );
   }
 
-  uploadSqlScript(file: File) {}
+  uploadSqlScript(file: File) {
+    this.jarService.uploadSqlScript(file).subscribe(
+      event => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.isUploading = true;
+          this.progress = Math.round((100 * event.loaded) / event.total);
+        } else if (event.type === HttpEventType.Response) {
+          this.isUploading = false;
+          this.statusService.forceRefresh();
+        }
+      },
+      () => {
+        this.isUploading = false;
+        this.progress = 0;
+      }
+    );
+  }
 
   /**
    * Delete jar
@@ -126,7 +142,12 @@ export class SubmitComponent implements OnInit, OnDestroy {
     });
   }
 
-  deleteSqlScript(file: JarFilesItemInterface) {}
+  deleteSqlScript(file: JarFilesItemInterface) {
+    this.jarService.deleteDependencyJar(file.id).subscribe(() => {
+      this.statusService.forceRefresh();
+      this.expandedMap.set(file.id, false);
+    });
+  }
 
   /**
    * Click to expand jar details
