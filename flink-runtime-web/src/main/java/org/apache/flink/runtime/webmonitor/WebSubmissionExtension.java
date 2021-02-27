@@ -82,7 +82,7 @@ public class WebSubmissionExtension implements WebMonitorExtension {
         webSubmissionHandlers = new ArrayList<>();
         Path dependencyJarDir = ClusterEntrypointUtils.tryFindFlinkLibDirectory().toPath();
         Path schedulersDir = ClusterEntrypointUtils.tryFindFlinkSchedulersDirectory().toPath();
-        Path sqlScriptsDir = ClusterEntrypointUtils.tryFindFlinkSchedulersDirectory().toPath();
+        Path sqlScriptsDir = ClusterEntrypointUtils.tryFindFlinkSqlScriptsDirectory().toPath();
 
         final JarUploadHandler jarUploadHandler =
                 new JarUploadHandler(

@@ -40,6 +40,7 @@ export class SubmitComponent implements OnInit, OnDestroy {
   destroy$ = new Subject();
   listOfJar: JarFilesItemInterface[] = [];
   listOfDependencyJar: JarFilesItemInterface[] = [];
+  listOfSqlScripts: JarFilesItemInterface[] = [];
   address: string;
   isYarn = false;
   noAccess = false;
@@ -48,34 +49,17 @@ export class SubmitComponent implements OnInit, OnDestroy {
   validateForm: FormGroup;
   planVisible = false;
   isSQLModalVisible = false;
-  sqlStatements = '';
-  sqlJarName = '';
-  listOfSQLJar = ['demo-sql.jar'];
 
   showSQLModal(): void {
     this.isSQLModalVisible = true;
   }
 
   handleSQLModalUpload(): void {
-    this.listOfSQLJar.push(this.sqlJarName);
-
-    this.sqlJarName = '';
-    this.sqlStatements = '';
     this.isSQLModalVisible = false;
   }
 
   handleSQLModalCancel(): void {
-    this.sqlJarName = '';
-    this.sqlStatements = '';
     this.isSQLModalVisible = false;
-  }
-
-  updateSqlStatements(value: string) {
-    this.sqlStatements = value;
-  }
-
-  updateSqlJarName(value: string) {
-    this.sqlJarName = value;
   }
 
   /**
@@ -122,6 +106,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
     );
   }
 
+  uploadSqlScript(file: File) {}
+
   /**
    * Delete jar
    * @param jar
@@ -139,6 +125,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
       this.expandedMap.set(jar.id, false);
     });
   }
+
+  deleteSqlScript(file: JarFilesItemInterface) {}
 
   /**
    * Click to expand jar details
@@ -234,13 +222,20 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.statusService.refresh$
       .pipe(
         takeUntil(this.destroy$),
-        switchMap(() => forkJoin([this.jarService.loadJarList(), this.jarService.loadDependencyJarList()]))
+        switchMap(() =>
+          forkJoin([
+            this.jarService.loadJarList(),
+            this.jarService.loadDependencyJarList(),
+            this.jarService.loadSqlScriptList()
+          ])
+        )
       )
       .subscribe(
-        ([jars, dependencyJars]) => {
+        ([jars, dependencyJars, sqlScripts]) => {
           this.isLoading = false;
           this.listOfJar = jars.files;
           this.listOfDependencyJar = dependencyJars.files;
+          this.listOfSqlScripts = sqlScripts.files;
           this.address = jars.address;
           this.cdr.markForCheck();
           this.noAccess = Boolean(jars.error);

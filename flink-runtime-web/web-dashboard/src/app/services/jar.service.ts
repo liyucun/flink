@@ -69,6 +69,18 @@ export class JarService {
     );
   }
 
+  loadSqlScriptList() {
+    return this.httpClient.get<JarListInterface>(`${BASE_URL}/sql-scripts`).pipe(
+      catchError(() => {
+        return of({
+          address: '',
+          error: true,
+          files: []
+        });
+      })
+    );
+  }
+
   /**
    * Upload jar
    * @param fd

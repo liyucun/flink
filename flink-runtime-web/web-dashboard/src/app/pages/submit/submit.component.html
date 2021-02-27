@@ -176,23 +176,30 @@
     </div>
   </ng-template>
 
-  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded SQL Jars'" [nzLoading]="isLoading" [nzExtra]="sqlUploadTemplate">
+
+  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Sql Scripts'" [nzLoading]="isLoading" [nzExtra]="sqlScriptTemplate">
     <ng-container *ngIf="!isYarn">
       <nz-table
         [nzSize]="'small'"
-        [nzData]="listOfSQLJar"
+        [nzData]="listOfSqlScripts"
         [nzFrontPagination]="false"
         [nzShowPagination]="false"
         class="no-border">
         <thead>
           <tr>
             <th>Name</th>
+            <th>Upload Time</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
-          <ng-container *ngFor="let jar of listOfSQLJar; trackBy:trackJarBy;">
+          <ng-container *ngFor="let jar of listOfSqlScripts; trackBy:trackJarBy;">
             <tr>
-              <td>{{jar}}</td>
+              <td>{{jar.name}}</td>
+              <td>{{jar.uploaded | date:'yyyy-MM-dd, HH:mm:ss'}}</td>
+              <td class="delete-jar">
+                <a nz-popconfirm (click)="$event.stopPropagation();" (nzOnConfirm)="deleteSqlScript(jar)" nzTitle="Are you sure delete this sql script?">Delete</a>
+              </td>
             </tr>
           </ng-container>
         </tbody>
@@ -203,21 +210,14 @@
       <span *ngIf="address">Yarn's AM proxy doesn't allow file uploads. You can visit&nbsp;<a [attr.href]="address+'/#/submit'">here</a>&nbsp;to access this functionality.</span>
     </ng-container>
   </nz-card>
-  <ng-template #sqlUploadTemplate>
+  <ng-template #sqlScriptTemplate>
     <div class="extra" *ngIf="!noAccess && !isYarn">
       <ng-container *ngIf="!isUploading">
-        <label (click)="showSQLModal()" class="upload ant-btn-primary ant-btn ant-btn-sm">
+        <input flinkFileRead type="file" class="input-file" id="upload-file" (fileRead)="uploadSqlScript($event)">
+        <label for="upload-file" class="upload ant-btn-primary ant-btn ant-btn-sm">
           <span><i nz-icon type="plus"></i>Add New</span>
         </label>
       </ng-container>
+      <nz-progress *ngIf="isUploading" [nzPercent]="progress" nzSize="small" [nzShowInfo]="false"></nz-progress>
     </div>
   </ng-template>
-  <nz-modal [(nzVisible)]="isSQLModalVisible" nzTitle="Write Your SQL Statements" [nzFooter]="modalFooter" (nzOnCancel)="handleSQLModalCancel()">
-    <input class="sql-jar-input" nz-input placeholder="sql jar name" #sqlJarNameInput (keyup)="updateSqlJarName(sqlJarNameInput.value)"/>
-    <textarea nz-input placeholder="Write your sql statements here" [nzAutosize]="{ minRows: 5, maxRows: 10 }" #sqlStatementsInput (keyup)="updateSqlStatements(sqlStatementsInput.value)"></textarea>
-    <ng-template #modalFooter>
-      <button nz-button nzType="default" (click)="handleSQLModalCancel()">Cancel</button>
-      <button nz-button nzType="primary" (click)="handleSQLModalUpload()" [nzLoading]="isUploading">Upload</button>
-    </ng-template>
-  </nz-modal>
-  
