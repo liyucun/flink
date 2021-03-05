@@ -134,7 +134,6 @@
           <tr>
             <th>Name</th>
             <th>Upload Time</th>
-            <th>Entry Class</th>
             <th></th>
           </tr>
         </thead>
@@ -143,14 +142,6 @@
             <tr (click)="expandJar(jar)" class="clickable">
               <td>{{jar.name}}</td>
               <td>{{jar.uploaded | date:'yyyy-MM-dd, HH:mm:ss'}}</td>
-              <td>
-                <div *ngFor="let entries of jar.entry">
-                  {{entries.name}}
-                </div>
-                <div *ngIf="jar.entry.length===0">
-                  -
-                </div>
-              </td>
               <td class="delete-jar">
                 <a nz-popconfirm (click)="$event.stopPropagation();" (nzOnConfirm)="deleteDependencyJar(jar)" nzTitle="Are you sure delete this jar?">Delete</a>
               </td>
@@ -175,7 +166,6 @@
       <nz-progress *ngIf="isUploading" [nzPercent]="progress" nzSize="small" [nzShowInfo]="false"></nz-progress>
     </div>
   </ng-template>
-
 
   <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Sql Scripts'" [nzLoading]="isLoading" [nzExtra]="sqlScriptTemplate">
     <ng-container *ngIf="!isYarn">
@@ -213,8 +203,8 @@
   <ng-template #sqlScriptTemplate>
     <div class="extra" *ngIf="!noAccess && !isYarn">
       <ng-container *ngIf="!isUploading">
-        <input flinkFileRead type="file" class="input-file" id="upload-file" (fileRead)="uploadSqlScript($event)">
-        <label for="upload-file" class="upload ant-btn-primary ant-btn ant-btn-sm">
+        <input flinkFileRead type="file" class="input-file" id="upload-sql-script" (fileRead)="uploadSqlScript($event)">
+        <label for="upload-sql-script" class="upload ant-btn-primary ant-btn ant-btn-sm">
           <span><i nz-icon type="plus"></i>Add New</span>
         </label>
       </ng-container>

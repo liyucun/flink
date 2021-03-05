@@ -1,7 +1,7 @@
 [
   {
     "context": ["/"],
-    "target": "http://3.236.22.232:8081",
+    "target": "http://3.235.31.178:8081",
     "secure": false
   }
 ]
