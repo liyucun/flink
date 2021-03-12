@@ -37,4 +37,4 @@
   <input class="search" placeholder="Search Keyword" #search (keyup)="onKey(search.value)" />
   <button class="search-button" (click)="handleSearch()">Search</button>
 </div>
-<flink-monaco-editor [value]="logs"></flink-monaco-editor>
+<flink-monaco-editor [value]="logs" [searchValue]="searchKeyword"></flink-monaco-editor>
