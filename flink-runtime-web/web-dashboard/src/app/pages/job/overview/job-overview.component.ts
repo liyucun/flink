@@ -98,11 +98,47 @@ export class JobOverviewComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe(data => {
+        let magic_nodes: any = {};
+        for (let node of data.plan.nodes) {
+          magic_nodes[node.id] = node;
+
+          for (let index = 1; index < node.parallelism; index++) {
+            const id = `${node.id}#${index}`;
+            magic_nodes[id] = { ...node, id };
+          }
+        }
+
+        const magic_links = [];
+        for (let link of data.plan.links) {
+          magic_links.push(link);
+          const source = magic_nodes[link.source];
+          const target = magic_nodes[link.target];
+          for (let index = 1; index < target.parallelism; index++) {
+            const targetId = target.id + '#' + index;
+            let sourceId = source.id;
+            if (source.parallelism > 1) {
+              const extra = source.parallelism <= index ? source.parallelism - 1 : index;
+              sourceId += '#' + extra;
+            }
+            magic_links.push({ ...link, id: `${sourceId}-${targetId}`, source: sourceId, target: targetId });
+          }
+
+          for (let index = 1; index < source.parallelism; index++) {
+            const sourceId = source.id + '#' + index;
+            let targetId = target.id;
+            if (target.parallelism > 1) {
+              const extra = target.parallelism <= index ? target.parallelism - 1 : index;
+              targetId += '#' + extra;
+            }
+            magic_links.push({ ...link, id: `${sourceId}-${targetId}`, source: sourceId, target: targetId });
+          }
+        }
+
         if (this.jobId !== data.plan.jid) {
           this.nodes = data.plan.nodes;
           this.links = data.plan.links;
           this.jobId = data.plan.jid;
-          this.dagreComponent.flush(this.nodes, this.links, true).then();
+          this.dagreComponent.flush(Object.values(magic_nodes), magic_links, true).then();
           this.refreshNodesWithWatermarks();
         } else {
           this.nodes = data.plan.nodes;

@@ -40,12 +40,26 @@ export class MonacoEditorComponent implements AfterViewInit, OnDestroy {
     this.innerValue = value;
     if (this.editor) {
       this.editor.getModel()!.setValue(this.innerValue);
+
+      if (this.searchValue) {
+        const decorations = this.innerValue.split('\n').map((line, index) => {
+          const start = line.indexOf(this.searchValue);
+          const end = start + this.searchValue.length;
+          return {
+            range: new monaco.Range(index + 1, start, index + 1, end + 1),
+            options: { inlineClassName: 'editorHighlightDecoration' }
+          };
+        });
+        this.editor.deltaDecorations([], decorations);
+      }
     }
   }
 
   get value() {
     return this.innerValue;
   }
+
+  @Input() searchValue: string = '';
 
   setupMonaco() {
     const hostElement = this.elementRef.nativeElement;

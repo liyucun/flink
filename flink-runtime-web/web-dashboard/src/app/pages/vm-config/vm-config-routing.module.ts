@@ -16,12 +16,19 @@
  * limitations under the License.
  */
 
-:host {
-  position: absolute;
-  top: 40px;
-  right: 32px;
-}
+import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
+import { VMConfigComponent } from './vm-config.component';
 
-.operate-icon {
-  margin-right: 6px;
-}
+const routes: Routes = [
+  {
+    path: '',
+    component: VMConfigComponent
+  }
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class VMConfigRoutingModule {}

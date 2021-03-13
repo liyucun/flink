@@ -16,12 +16,18 @@
  * limitations under the License.
  */
 
-:host {
-  position: absolute;
-  top: 40px;
-  right: 32px;
-}
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 
-.operate-icon {
-  margin-right: 6px;
+@Component({
+  selector: 'flink-vm-config',
+  templateUrl: './vm-config.component.html',
+  styleUrls: ['./vm-config.component.less'],
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class VMConfigComponent implements OnInit, OnDestroy {
+  constructor() {}
+
+  ngOnInit() {}
+
+  ngOnDestroy() {}
 }

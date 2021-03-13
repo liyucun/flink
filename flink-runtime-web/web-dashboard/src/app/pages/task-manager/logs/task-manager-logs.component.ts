@@ -32,6 +32,7 @@ export class TaskManagerLogsComponent implements OnInit {
   @ViewChild(MonacoEditorComponent) monacoEditorComponent: MonacoEditorComponent;
   logs = '';
   taskManagerDetail: TaskManagerDetailInterface;
+  searchKeyword = '';
 
   reload() {
     if (this.taskManagerDetail) {
@@ -39,6 +40,10 @@ export class TaskManagerLogsComponent implements OnInit {
         data => {
           this.monacoEditorComponent.layout();
           this.logs = data;
+          if (this.searchKeyword) {
+            const processedLogs = this.logs.split('\n').filter(line => line.includes(this.searchKeyword));
+            this.logs = processedLogs.join('\n');
+          }
           this.cdr.markForCheck();
         },
         () => {
@@ -56,5 +61,13 @@ export class TaskManagerLogsComponent implements OnInit {
       this.reload();
       this.cdr.markForCheck();
     });
+  }
+
+  onKey(value: string) {
+    this.searchKeyword = value;
+  }
+
+  handleSearch() {
+    this.reload();
   }
 }

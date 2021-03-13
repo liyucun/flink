@@ -168,7 +168,11 @@ fi
 FLINK_LIB_DIR=$FLINK_HOME/lib
 FLINK_PLUGINS_DIR=$FLINK_HOME/plugins
 FLINK_OPT_DIR=$FLINK_HOME/opt
+FLINK_SCHEDULERS_DIR=$FLINK_HOME/schedulers
+FLINK_SQL_SCRIPTS_DIR=$FLINK_HOME/sql-scripts
 
+mkdir -p $FLINK_SCHEDULERS_DIR
+mkdir -p $FLINK_SQL_SCRIPTS_DIR
 
 # These need to be mangled because they are directly passed to java.
 # The above lib path is used by the shell script to retrieve jars in a
@@ -188,6 +192,8 @@ export FLINK_PLUGINS_DIR
 export FLINK_LIB_DIR
 # export /opt dir to access it for the SQL client
 export FLINK_OPT_DIR
+export FLINK_SCHEDULERS_DIR
+export FLINK_SQL_SCRIPTS_DIR
 
 ########################################################################################################################
 # ENVIRONMENT VARIABLES

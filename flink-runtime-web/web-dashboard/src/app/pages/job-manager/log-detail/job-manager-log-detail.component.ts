@@ -37,6 +37,8 @@ export class JobManagerLogDetailComponent implements OnInit {
   downloadUrl = '';
   isLoading = false;
   isFullScreen = false;
+  searchKeyword = '';
+
   @ViewChild(MonacoEditorComponent) monacoEditorComponent: MonacoEditorComponent;
   constructor(
     private jobManagerService: JobManagerService,
@@ -58,6 +60,11 @@ export class JobManagerLogDetailComponent implements OnInit {
       )
       .subscribe(data => {
         this.logs = data.data;
+        if (this.searchKeyword) {
+          const processedLogs = this.logs.split('\n').filter(line => line.includes(this.searchKeyword));
+          this.logs = processedLogs.join('\n');
+        }
+
         this.downloadUrl = data.url;
       });
   }
@@ -73,6 +80,14 @@ export class JobManagerLogDetailComponent implements OnInit {
 
   ngOnInit() {
     this.logName = this.activatedRoute.snapshot.params.logName;
+    this.reload();
+  }
+
+  onKey(value: string) {
+    this.searchKeyword = value;
+  }
+
+  handleSearch() {
     this.reload();
   }
 }

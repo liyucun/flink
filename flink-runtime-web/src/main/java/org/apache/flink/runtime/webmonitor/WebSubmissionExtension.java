@@ -23,7 +23,14 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.client.deployment.application.DetachedApplicationRunner;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.runtime.dispatcher.DispatcherGateway;
+import org.apache.flink.runtime.util.ClusterEntrypointUtils;
 import org.apache.flink.runtime.rest.handler.RestHandlerSpecification;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarDeleteHandler;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarDeleteHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHandler;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarListHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarUploadHandler;
+import org.apache.flink.runtime.webmonitor.handlers.DependencyJarUploadHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarDeleteHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarDeleteHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarListHandler;
@@ -35,6 +42,16 @@ import org.apache.flink.runtime.webmonitor.handlers.JarRunHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarRunHeaders;
 import org.apache.flink.runtime.webmonitor.handlers.JarUploadHandler;
 import org.apache.flink.runtime.webmonitor.handlers.JarUploadHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerListHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerListHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerUploadHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SchedulerUploadHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptDeleteHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptDeleteHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptListHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptListHeaders;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptUploadHandler;
+import org.apache.flink.runtime.webmonitor.handlers.SqlScriptUploadHeaders;
 import org.apache.flink.runtime.webmonitor.retriever.GatewayRetriever;
 
 import org.apache.flink.shaded.netty4.io.netty.channel.ChannelInboundHandler;
@@ -63,6 +80,9 @@ public class WebSubmissionExtension implements WebMonitorExtension {
             throws Exception {
 
         webSubmissionHandlers = new ArrayList<>();
+        Path dependencyJarDir = ClusterEntrypointUtils.tryFindFlinkLibDirectory().toPath();
+        Path schedulersDir = ClusterEntrypointUtils.tryFindFlinkSchedulersDirectory().toPath();
+        Path sqlScriptsDir = ClusterEntrypointUtils.tryFindFlinkSqlScriptsDirectory().toPath();
 
         final JarUploadHandler jarUploadHandler =
                 new JarUploadHandler(
@@ -73,6 +93,33 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         jarDir,
                         executor);
 
+        final DependencyJarUploadHandler dependencyJarUploadHandler =
+                new DependencyJarUploadHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        DependencyJarUploadHeaders.getInstance(),
+                        dependencyJarDir,
+                        executor);
+
+        final SchedulerUploadHandler schedulerUploadHandler =
+                new SchedulerUploadHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SchedulerUploadHeaders.getInstance(),
+                        schedulersDir,
+                        executor);
+
+        final SqlScriptUploadHandler sqlScriptUploadHandler =
+                new SqlScriptUploadHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SchedulerUploadHeaders.getInstance(),
+                        sqlScriptsDir,
+                        executor);
+
         final JarListHandler jarListHandler =
                 new JarListHandler(
                         leaderRetriever,
@@ -81,6 +128,39 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         JarListHeaders.getInstance(),
                         localAddressFuture,
                         jarDir.toFile(),
+                        configuration,
+                        executor);
+
+        final DependencyJarListHandler dependencyJarListHandler =
+                new DependencyJarListHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        DependencyJarListHeaders.getInstance(),
+                        localAddressFuture,
+                        dependencyJarDir.toFile(),
+                        configuration,
+                        executor);
+
+        final SchedulerListHandler schedulerListHandler =
+                new SchedulerListHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SchedulerListHeaders.getInstance(),
+                        localAddressFuture,
+                        schedulersDir.toFile(),
+                        configuration,
+                        executor);
+
+        final SqlScriptListHandler sqlScriptListHandler =
+                new SqlScriptListHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SqlScriptListHeaders.getInstance(),
+                        localAddressFuture,
+                        sqlScriptsDir.toFile(),
                         configuration,
                         executor);
 
@@ -102,6 +182,24 @@ public class WebSubmissionExtension implements WebMonitorExtension {
                         responseHeaders,
                         JarDeleteHeaders.getInstance(),
                         jarDir,
+                        executor);
+
+        final SqlScriptDeleteHandler sqlScriptDeleteHandler =
+                new SqlScriptDeleteHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        SqlScriptDeleteHeaders.getInstance(),
+                        sqlScriptsDir,
+                        executor);
+
+        final DependencyJarDeleteHandler dependencyJarDeleteHandler =
+                new DependencyJarDeleteHandler(
+                        leaderRetriever,
+                        timeout,
+                        responseHeaders,
+                        DependencyJarDeleteHeaders.getInstance(),
+                        dependencyJarDir,
                         executor);
 
         final JarPlanHandler jarPlanHandler =
@@ -130,6 +228,17 @@ public class WebSubmissionExtension implements WebMonitorExtension {
         webSubmissionHandlers.add(Tuple2.of(JarDeleteHeaders.getInstance(), jarDeleteHandler));
         webSubmissionHandlers.add(Tuple2.of(JarPlanGetHeaders.getInstance(), jarPlanHandler));
         webSubmissionHandlers.add(Tuple2.of(JarPlanPostHeaders.getInstance(), postJarPlanHandler));
+
+        webSubmissionHandlers.add(Tuple2.of(DependencyJarUploadHeaders.getInstance(), dependencyJarUploadHandler));
+        webSubmissionHandlers.add(Tuple2.of(DependencyJarListHeaders.getInstance(), dependencyJarListHandler));
+        webSubmissionHandlers.add(Tuple2.of(DependencyJarDeleteHeaders.getInstance(), dependencyJarDeleteHandler));
+
+        webSubmissionHandlers.add(Tuple2.of(SchedulerUploadHeaders.getInstance(), schedulerUploadHandler));
+        webSubmissionHandlers.add(Tuple2.of(SchedulerListHeaders.getInstance(), schedulerListHandler));
+
+        webSubmissionHandlers.add(Tuple2.of(SqlScriptUploadHeaders.getInstance(), sqlScriptUploadHandler));
+        webSubmissionHandlers.add(Tuple2.of(SqlScriptListHeaders.getInstance(), sqlScriptListHandler));
+        webSubmissionHandlers.add(Tuple2.of(SqlScriptDeleteHeaders.getInstance(), sqlScriptDeleteHandler));
     }
 
     @Override

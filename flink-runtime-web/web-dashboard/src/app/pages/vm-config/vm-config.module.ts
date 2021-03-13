@@ -16,12 +16,16 @@
  * limitations under the License.
  */
 
-:host {
-  position: absolute;
-  top: 40px;
-  right: 32px;
-}
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ShareModule } from 'share/share.module';
 
-.operate-icon {
-  margin-right: 6px;
-}
+import { VMConfigRoutingModule } from './vm-config-routing.module';
+import { VMConfigComponent } from './vm-config.component';
+
+@NgModule({
+  imports: [CommonModule, ReactiveFormsModule, VMConfigRoutingModule, ShareModule],
+  declarations: [VMConfigComponent]
+})
+export class VMConfigModule {}

@@ -22,7 +22,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { JarFilesItemInterface } from 'interfaces';
 import { Subject } from 'rxjs';
-import { flatMap, takeUntil } from 'rxjs/operators';
+import { takeUntil, switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 import { JarService, StatusService } from 'services';
 import { DagreComponent } from 'share/common/dagre/dagre.component';
 
@@ -38,6 +39,8 @@ export class SubmitComponent implements OnInit, OnDestroy {
   isLoading = true;
   destroy$ = new Subject();
   listOfJar: JarFilesItemInterface[] = [];
+  listOfDependencyJar: JarFilesItemInterface[] = [];
+  listOfSqlScripts: JarFilesItemInterface[] = [];
   address: string;
   isYarn = false;
   noAccess = false;
@@ -45,6 +48,41 @@ export class SubmitComponent implements OnInit, OnDestroy {
   progress = 0;
   validateForm: FormGroup;
   planVisible = false;
+  isSQLModalVisible = false;
+
+  showSQLModal(): void {
+    this.isSQLModalVisible = true;
+  }
+
+  handleSQLModalUpload(): void {
+    this.isSQLModalVisible = false;
+  }
+
+  handleSQLModalCancel(): void {
+    this.isSQLModalVisible = false;
+  }
+
+  /**
+   * Upload Dependency jar
+   * @param file
+   */
+  uploadDepencyJar(file: File) {
+    this.jarService.uploadDependencyJar(file).subscribe(
+      event => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.isUploading = true;
+          this.progress = Math.round((100 * event.loaded) / event.total);
+        } else if (event.type === HttpEventType.Response) {
+          this.isUploading = false;
+          this.statusService.forceRefresh();
+        }
+      },
+      () => {
+        this.isUploading = false;
+        this.progress = 0;
+      }
+    );
+  }
 
   /**
    * Upload jar
@@ -52,6 +90,24 @@ export class SubmitComponent implements OnInit, OnDestroy {
    */
   uploadJar(file: File) {
     this.jarService.uploadJar(file).subscribe(
+      event => {
+        if (event.type === HttpEventType.UploadProgress && event.total) {
+          this.isUploading = true;
+          this.progress = Math.round((100 * event.loaded) / event.total);
+        } else if (event.type === HttpEventType.Response) {
+          this.isUploading = false;
+          this.statusService.forceRefresh();
+        }
+      },
+      () => {
+        this.isUploading = false;
+        this.progress = 0;
+      }
+    );
+  }
+
+  uploadSqlScript(file: File) {
+    this.jarService.uploadSqlScript(file).subscribe(
       event => {
         if (event.type === HttpEventType.UploadProgress && event.total) {
           this.isUploading = true;
@@ -76,6 +132,20 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.jarService.deleteJar(jar.id).subscribe(() => {
       this.statusService.forceRefresh();
       this.expandedMap.set(jar.id, false);
+    });
+  }
+
+  deleteDependencyJar(jar: JarFilesItemInterface) {
+    this.jarService.deleteDependencyJar(jar.id).subscribe(() => {
+      this.statusService.forceRefresh();
+      this.expandedMap.set(jar.id, false);
+    });
+  }
+
+  deleteSqlScript(file: JarFilesItemInterface) {
+    this.jarService.deleteDependencyJar(file.id).subscribe(() => {
+      this.statusService.forceRefresh();
+      this.expandedMap.set(file.id, false);
     });
   }
 
@@ -173,15 +243,23 @@ export class SubmitComponent implements OnInit, OnDestroy {
     this.statusService.refresh$
       .pipe(
         takeUntil(this.destroy$),
-        flatMap(() => this.jarService.loadJarList())
+        switchMap(() =>
+          forkJoin([
+            this.jarService.loadJarList(),
+            this.jarService.loadDependencyJarList(),
+            this.jarService.loadSqlScriptList()
+          ])
+        )
       )
       .subscribe(
-        data => {
+        ([jars, dependencyJars, sqlScripts]) => {
           this.isLoading = false;
-          this.listOfJar = data.files;
-          this.address = data.address;
+          this.listOfJar = jars.files;
+          this.listOfDependencyJar = dependencyJars.files;
+          this.listOfSqlScripts = sqlScripts.files;
+          this.address = jars.address;
           this.cdr.markForCheck();
-          this.noAccess = Boolean(data.error);
+          this.noAccess = Boolean(jars.error);
         },
         () => {
           this.isLoading = false;

@@ -37,6 +37,8 @@ export class TaskManagerLogDetailComponent implements OnInit {
   isLoading = false;
   taskManagerDetail: TaskManagerDetailInterface;
   isFullScreen = false;
+  searchKeyword = '';
+
   @ViewChild(MonacoEditorComponent) monacoEditorComponent: MonacoEditorComponent;
 
   constructor(
@@ -51,6 +53,11 @@ export class TaskManagerLogDetailComponent implements OnInit {
     this.taskManagerService.loadLog(this.taskManagerDetail.id, this.logName).subscribe(
       data => {
         this.logs = data.data;
+        if (this.searchKeyword) {
+          const processedLogs = this.logs.split('\n').filter(line => line.includes(this.searchKeyword));
+          this.logs = processedLogs.join('\n');
+        }
+
         this.downloadUrl = data.url;
         this.isLoading = false;
         this.layoutEditor();
@@ -79,5 +86,13 @@ export class TaskManagerLogDetailComponent implements OnInit {
       this.logName = this.activatedRoute.snapshot.params.logName;
       this.reloadLog();
     });
+  }
+
+  onKey(value: string) {
+    this.searchKeyword = value;
+  }
+
+  handleSearch() {
+    this.reloadLog();
   }
 }

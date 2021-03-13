@@ -1,0 +1,41 @@
+  <nz-card class="card" [nzBordered]="false" [nzTitle]="'Uploaded Schedulers'" [nzLoading]="isLoading" [nzExtra]="extraTemplate">
+    <ng-container *ngIf="!isYarn">
+      <nz-table
+        [nzSize]="'small'"
+        [nzData]="listOfSchedulers"
+        [nzFrontPagination]="false"
+        [nzShowPagination]="false"
+        class="no-border">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Upload Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <ng-container *ngFor="let scheduler of listOfSchedulers; trackBy:trackJarBy;">
+            <tr>
+              <td>{{scheduler.name}}</td>
+              <td>{{scheduler.uploaded | date:'yyyy-MM-dd, HH:mm:ss'}}</td>
+            </tr>
+          </ng-container>
+        </tbody>
+      </nz-table>
+    </ng-container>
+    <ng-container *ngIf="!noAccess && isYarn">
+      <span *ngIf="!address">Yarn's AM proxy doesn't allow file uploads. Please wait while we fetch an alternate url for you to use</span>
+      <span *ngIf="address">Yarn's AM proxy doesn't allow file uploads. You can visit&nbsp;<a [attr.href]="address+'/#/submit'">here</a>&nbsp;to access this functionality.</span>
+    </ng-container>
+  </nz-card>
+  <ng-template #extraTemplate>
+    <div class="extra" *ngIf="!noAccess && !isYarn">
+      <ng-container *ngIf="!isUploading">
+        <input flinkFileRead type="file" class="input-file" id="upload-file" (fileRead)="uploadScheduler($event)">
+        <label for="upload-file" class="upload ant-btn-primary ant-btn ant-btn-sm">
+          <span><i nz-icon type="plus"></i>Add New</span>
+        </label>
+      </ng-container>
+      <nz-progress *ngIf="isUploading" [nzPercent]="progress" nzSize="small" [nzShowInfo]="false"></nz-progress>
+    </div>
+  </ng-template>
+  
