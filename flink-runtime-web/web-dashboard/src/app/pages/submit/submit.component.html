@@ -158,8 +158,8 @@
   <ng-template #denpendencyJarUploadTemplate>
     <div class="extra" *ngIf="!noAccess && !isYarn">
       <ng-container *ngIf="!isUploading">
-        <input flinkFileRead type="file" class="input-file" id="upload-file" (fileRead)="uploadDepencyJar($event)">
-        <label for="upload-file" class="upload ant-btn-primary ant-btn ant-btn-sm">
+        <input flinkFileRead type="file" class="input-file" id="upload-dependency-jar" (fileRead)="uploadDepencyJar($event)">
+        <label for="upload-dependency-jar" class="upload ant-btn-primary ant-btn ant-btn-sm">
           <span><i nz-icon type="plus"></i>Add New</span>
         </label>
       </ng-container>
